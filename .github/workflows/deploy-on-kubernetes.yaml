@@ -75,15 +75,17 @@ jobs:
           kubectl ${{ inputs.apply-or-delete }} --kubeconfig ~/.kube/kubeconfig.yaml -n staging -f infrastructure.yaml
 
       - name: Deploy or Delete Application
-        if: ${{ !inputs.infrastructure-only }}
-        run: |-
-          cd kubernetes/overlays/staging
-          kustomize edit set image k8smaestro/bm-flight=ghcr.io/${{ github.repository }}-flight:${{ inputs.release_tag }}
-          kustomize edit set image k8smaestro/bm-booking=ghcr.io/${{ github.repository }}-booking:${{ inputs.release_tag }}
-          kustomize edit set image k8smaestro/bm-identity=ghcr.io/${{ github.repository }}-identity:${{ inputs.release_tag }}
-          kustomize edit set image k8smaestro/bm-passenger=ghcr.io/${{ github.repository }}-passenger:${{ inputs.release_tag }}
+        if: inputs.infrastructure-only != 'true'
+        run: |
+          REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+
+          kustomize edit set image k8smaestro/bm-flight=ghcr.io/${REPO}-flight:${{ inputs.release_tag }}
+          kustomize edit set image k8smaestro/bm-booking=ghcr.io/${REPO}-booking:${{ inputs.release_tag }}
+          kustomize edit set image k8smaestro/bm-identity=ghcr.io/${REPO}-identity:${{ inputs.release_tag }}
+          kustomize edit set image k8smaestro/bm-passenger=ghcr.io/${REPO}-passenger:${{ inputs.release_tag }}
+
           kustomize build . | kubectl ${{ inputs.apply-or-delete }} --kubeconfig ~/.kube/kubeconfig.yaml -f -
-      
+
       - name: Validate Flight microservices
         if: (!cancelled() && !inputs.infrastructure-only && inputs.apply-or-delete == 'apply')
         run: |-
