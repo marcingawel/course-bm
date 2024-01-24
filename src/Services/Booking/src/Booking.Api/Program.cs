@@ -17,6 +17,9 @@ builder.AddInfrastructure();
 
 var app = builder.Build();
 
+
+
+
 app.MapMinimalEndpoints();
 app.UseAuthentication();
 app.UseAuthorization();
