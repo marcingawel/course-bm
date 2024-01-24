@@ -1,0 +1,105 @@
+---
+name: Deploy on Kubernetes
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: |
+          'Version to manually release'
+        required: true
+        type: string
+      apply-or-delete:
+        description: |
+          'Apply or Delete'
+        required: true
+        type: choice
+        options:
+        - apply
+        - delete
+        default: apply
+      infrastructure-only:
+        description: |
+          'Deploy only infrastructure'
+        required: true
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      release_tag:
+        description: |
+          'Version to manually release'
+        required: true
+        type: string
+      apply-or-delete:
+        description: |
+          'Apply or Delete'
+        required: true
+        type: string
+        default: apply
+      infrastructure-only:
+        description: |
+          'Deploy infractructure'
+        required: true
+        type: boolean
+        default: false
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}-deploy
+  cancel-in-progress: true
+
+jobs:
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: alexellis/arkade-get@master
+        with:
+          kubectl: latest
+          kustomize: latest
+
+      - name: Create/Verify `.kube` directory
+        run: mkdir -p ~/.kube/
+
+      - name: Create kubectl config
+        run: |
+          cat << EOF >> ~/.kube/kubeconfig.yaml
+          ${{ secrets.KUBECONFIG_SA }}
+          EOF
+
+      - name: Deploy or Delete Infrastructure
+        if: ${{ inputs.infrastructure-only }}
+        run: |-
+          cd kubernetes
+          kubectl ${{ inputs.apply-or-delete }} --kubeconfig ~/.kube/kubeconfig.yaml -n staging -f infrastructure.yaml
+
+      - name: Deploy or Delete Application
+        if: ${{ !inputs.infrastructure-only }}
+        run: |-
+          cd kubernetes/overlays/staging
+          kustomize edit set image k8smaestro/bm-flight=ghcr.io/${{ github.repository }}-flight:${{ inputs.release_tag }}
+          kustomize edit set image k8smaestro/bm-booking=ghcr.io/${{ github.repository }}-booking:${{ inputs.release_tag }}
+          kustomize edit set image k8smaestro/bm-identity=ghcr.io/${{ github.repository }}-identity:${{ inputs.release_tag }}
+          kustomize edit set image k8smaestro/bm-passenger=ghcr.io/${{ github.repository }}-passenger:${{ inputs.release_tag }}
+          kustomize build . | kubectl ${{ inputs.apply-or-delete }} --kubeconfig ~/.kube/kubeconfig.yaml -f -
+      
+      - name: Validate Flight microservices
+        if: (!cancelled() && !inputs.infrastructure-only && inputs.apply-or-delete == 'apply')
+        run: |-
+          kubectl -n staging --kubeconfig ~/.kube/kubeconfig.yaml rollout status deployment/staging-flight-deployment
+
+      - name: Validate Booking microservices
+        if: (!cancelled() && !inputs.infrastructure-only && inputs.apply-or-delete == 'apply')
+        run: |-
+          kubectl -n staging --kubeconfig ~/.kube/kubeconfig.yaml rollout status deployment/staging-booking-deployment
+
+      - name: Validate Identity microservices
+        if: (!cancelled() && !inputs.infrastructure-only && inputs.apply-or-delete == 'apply')
+        run: |-
+          kubectl -n staging --kubeconfig ~/.kube/kubeconfig.yaml rollout status deployment/staging-identity-deployment
+
+      - name: Validate Passenger microservices
+        if: (!cancelled() && !inputs.infrastructure-only && inputs.apply-or-delete == 'apply')
+        run: |-
+          kubectl -n staging --kubeconfig ~/.kube/kubeconfig.yaml rollout status deployment/staging-passenger-deployment

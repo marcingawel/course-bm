@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: passenger-deployment
+  labels:
+    app.kubernetes.io/name: passenger
+    app.kubernetes.io/part-of: booking-microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: passenger
+  template:
+    metadata:
+      labels:
+        app: passenger
+    spec:
+      imagePullSecrets:
+        - name: github
+      containers:
+        - image: k8smaestro/bm-passenger:1.0.0
+          name: passenger
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: docker
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 64m
+            limits:
+              memory: 512Mi
+              cpu: 256m

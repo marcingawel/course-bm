@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity-deployment
+  labels:
+    app.kubernetes.io/name: identity
+    app.kubernetes.io/part-of: booking-microservices
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identity
+  template:
+    metadata:
+      labels:
+        app: identity
+    spec:
+      containers:
+        - image: k8smaestro/bm-identity:1.0.0
+          name: identity
+          ports:
+            - containerPort: 8080
+          env:
+          - name: ASPNETCORE_ENVIRONMENT
+            value: docker
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 64m
+            limits:
+              memory: 512Mi
+              cpu: 256m

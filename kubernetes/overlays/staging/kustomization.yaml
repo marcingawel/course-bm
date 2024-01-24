@@ -1,0 +1,30 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: staging
+
+resources:
+  - ../../base
+  
+patches:
+- target:
+    kind: Deployment
+    labelSelector: app.kubernetes.io/part-of=booking-microservices
+  patch: |-
+    - op: add
+      path: /spec/template/spec/imagePullSecrets
+      value: [{ name: github }]
+    - op: add
+      path: /spec/progressDeadlineSeconds
+      value: 60
+- path: booking-deployment.yaml
+  target:
+    kind: Deployment
+    name: booking-deployment
+- path: passenger-deployment.yaml
+  target:
+    kind: Deployment
+    name: passenger-deployment
+
+namePrefix: staging-

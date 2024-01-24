@@ -20,7 +20,7 @@ jobs:
           EOF
       - name: Echo pods
         run: |
-          kubectl --kubeconfig ~/.kube/kubeconfig.yaml -n kube-system get pods
+          kubectl --kubeconfig ~/.kube/kubeconfig.yaml get pods
       - name: Echo deployments
         run: |
-          kubectl --kubeconfig ~/.kube/kubeconfig.yaml -n kube-system get deployments
+          kubectl --kubeconfig ~/.kube/kubeconfig.yaml get deployments
