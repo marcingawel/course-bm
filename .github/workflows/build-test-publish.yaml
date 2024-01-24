@@ -66,7 +66,7 @@ jobs:
       contents: read
       packages: write # needed to push docker image to ghcr.io
       pull-requests: write
-    uses: asmaestro/actions/.github/workflows/docker-build-push.yaml@solution-docker
+    uses: GawelMarcin/course-action/.github/workflows/docker-build-push.yaml@solution-docker
     needs: [vars]
     with:
       name: Flight
@@ -100,7 +100,7 @@ jobs:
       contents: read
       packages: write # needed to push docker image to ghcr.io
       pull-requests: write
-    uses: asmaestro/actions/.github/workflows/docker-build-push.yaml@solution-docker
+    uses: GawelMarcin/course-action/.github/workflows/docker-build-push.yaml@solution-docker
     needs: [vars]
     with:
       name: Identity
@@ -134,7 +134,7 @@ jobs:
       contents: read
       packages: write # needed to push docker image to ghcr.io
       pull-requests: write
-    uses: asmaestro/actions/.github/workflows/docker-build-push.yaml@solution-docker
+    uses: aGawelMarcin/course-action/.github/workflows/docker-build-push.yaml@solution-docker
     needs: [vars]
     with:
       name: Passenger
@@ -168,7 +168,7 @@ jobs:
       contents: read
       packages: write # needed to push docker image to ghcr.io
       pull-requests: write
-    uses: asmaestro/actions/.github/workflows/docker-build-push.yaml@solution-docker
+    uses: GawelMarcin/course-action/.github/workflows/docker-build-push.yaml@solution-docker
     needs: [vars]
     with:
       name: Booking
