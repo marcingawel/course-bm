@@ -77,18 +77,16 @@ jobs:
       - name: Deploy or Delete Application
         if: inputs.infrastructure-only != 'true'
         run: |
-              LOWERCASE_REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          LOWERCASE_REPO="gawelmarcin"  # Hardcoded repository name
 
-                # Set it as an environment variable
-                echo "::set-env name=LOWERCASE_REPO::$LOWERCASE_REPO"
+          # Use the lowercase variable in your commands
+          kustomize edit set image k8smaestro/bm-flight=ghcr.io/${LOWERCASE_REPO}-flight:${{ inputs.release_tag }}
+          kustomize edit set image k8smaestro/bm-booking=ghcr.io/${LOWERCASE_REPO}-booking:${{ inputs.release_tag }}
+          kustomize edit set image k8smaestro/bm-identity=ghcr.io/${LOWERCASE_REPO}-identity:${{ inputs.release_tag }}
+          kustomize edit set image k8smaestro/bm-passenger=ghcr.io/${LOWERCASE_REPO}-passenger:${{ inputs.release_tag }}
 
-                # Use the lowercase variable in your commands
-                kustomize edit set image k8smaestro/bm-flight=ghcr.io/${LOWERCASE_REPO}-flight:${{ inputs.release_tag }}
-                kustomize edit set image k8smaestro/bm-booking=ghcr.io/${LOWERCASE_REPO}-booking:${{ inputs.release_tag }}
-                kustomize edit set image k8smaestro/bm-identity=ghcr.io/${LOWERCASE_REPO}-identity:${{ inputs.release_tag }}
-                kustomize edit set image k8smaestro/bm-passenger=ghcr.io/${LOWERCASE_REPO}-passenger:${{ inputs.release_tag }}
+          kustomize build . | kubectl ${{ inputs.apply-or-delete }} --kubeconfig ~/.kube/kubeconfig.yaml -f -
 
-                kustomize build . | kubectl ${{ inputs.apply-or-delete }} --kubeconfig ~/.kube/kubeconfig.yaml -f -
 
       - name: Validate Flight microservices
         if: (!cancelled() && !inputs.infrastructure-only && inputs.apply-or-delete == 'apply')
