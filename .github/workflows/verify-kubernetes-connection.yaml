@@ -1,0 +1,26 @@
+name: Verify Kubernetes connection
+on: 
+  workflow_dispatch:
+
+jobs:
+  verify_service_account:
+    name: Verify K8s Service Account
+    runs-on: ubuntu-latest
+    steps:
+      - uses: alexellis/arkade-get@master
+        with:
+          kubectl: latest
+          kustomize: latest
+      - name: Create/Verify `.kube` directory
+        run: mkdir -p ~/.kube/
+      - name: Create kubectl config
+        run: |
+          cat << EOF >> ~/.kube/kubeconfig.yaml
+          ${{ secrets.KUBECONFIG_SA }}
+          EOF
+      - name: Echo pods
+        run: |
+          kubectl --kubeconfig ~/.kube/kubeconfig.yaml -n kube-system get pods
+      - name: Echo deployments
+        run: |
+          kubectl --kubeconfig ~/.kube/kubeconfig.yaml -n kube-system get deployments
