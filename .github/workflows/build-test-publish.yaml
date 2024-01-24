@@ -134,7 +134,7 @@ jobs:
       contents: read
       packages: write # needed to push docker image to ghcr.io
       pull-requests: write
-    uses: aGawelMarcin/course-action/.github/workflows/docker-build-push.yaml@solution-docker
+    uses: GawelMarcin/course-action/.github/workflows/docker-build-push.yaml@solution-docker
     needs: [vars]
     with:
       name: Passenger
