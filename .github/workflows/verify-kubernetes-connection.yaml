@@ -18,6 +18,9 @@ jobs:
           cat << EOF >> ~/.kube/kubeconfig.yaml
           ${{ secrets.KUBECONFIG_SA }}
           EOF
+      - name: Echo files
+        run: |
+         cat ~/.kube/kubeconfig.yaml
       - name: Echo pods
         run: |
           kubectl --kubeconfig ~/.kube/kubeconfig.yaml -n kube-system get pods
