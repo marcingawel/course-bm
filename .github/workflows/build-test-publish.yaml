@@ -175,7 +175,7 @@ jobs:
       push: true
       file: 'src/Services/Booking/Dockerfile'
       context: .
-      image-names: "ghcr.io/${{ github.repository }}-booking"
+      image-names: "ghcr.io/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')-booking"
       tag-rules: ${{ needs.vars.outputs.tag_rules }}
 
   release-update:
@@ -192,8 +192,8 @@ jobs:
           append_body: true
           body: |
             - GitHub Packages Container URLs: 
-              - ${{ env.REGISTRY }}/${{ github.repository }}-flight:${{ inputs.release_tag }}
-              - ${{ env.REGISTRY }}/${{ github.repository }}-identity:${{ inputs.release_tag }}
-              - ${{ env.REGISTRY }}/${{ github.repository }}-passenger:${{ inputs.release_tag }}
-              - ${{ env.REGISTRY }}/${{ github.repository }}-booking:${{ inputs.release_tag }}
+              - ${{ env.REGISTRY }}/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')-flight:${{ inputs.release_tag }}
+              - ${{ env.REGISTRY }}/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')-identity:${{ inputs.release_tag }}
+              - ${{ env.REGISTRY }}/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')-passenger:${{ inputs.release_tag }}
+              - ${{ env.REGISTRY }}/$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')-booking:${{ inputs.release_tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
